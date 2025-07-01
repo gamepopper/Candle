@@ -6,3 +6,11 @@ debug/
 # Ignore generated docs and working files
 doc/html/
 doc/*.odg
+/.vs
+/CMakeFiles
+*.vcxproj
+*.filters
+*.sln
+*.cmake
+CMakeCache.txt
+*.user

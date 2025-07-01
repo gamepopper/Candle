@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.12)
 
 project(Candle)
 
-# set C++11 standard
-set(CMAKE_CXX_STANDARD 11)
+# set C++17 standard
+set(CMAKE_CXX_STANDARD 17)
 
 # set output files directories
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY bin)
@@ -14,11 +14,19 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY lib)
 # might need to set manually SFML_ROOT to the install location of SFML for Windows users
 # set(SFML_ROOT "")
 if(SFML_ROOT STREQUAL "")
-	find_package(SFML 2.5 REQUIRED COMPONENTS  graphics)
+	find_package(SFML 3.0 REQUIRED COMPONENTS Graphics)
+endif()
+
+if (SFML_GRAPHICS_FOUND)
+	message(STATUS "SFML Graphics Found")
 endif()
 
 # if the user wants to use static SFML libs
 # set(SFML_STATIC_LIBRARIES TRUE)
+
+find_path(SFML_INCLUDE_DIR SFML/Config.hpp
+          PATH_SUFFIXES include
+          PATHS ${FIND_SFML_PATHS})
 
 set(CANDLE_HEADERS
 	include/Candle/LightingArea.hpp
@@ -48,7 +56,9 @@ set(CANDLE_SRC
 # Static library target
 add_library(Candle-s STATIC ${CANDLE_SRC} ${CANDLE_HEADERS})
 target_include_directories(Candle-s PUBLIC include)
-target_link_libraries(Candle-s sfml-graphics)
+target_include_directories(Candle-s PUBLIC ${SFML_INCLUDE_DIR})
+target_link_libraries(Candle-s PUBLIC SFML::Graphics)
+target_compile_features(Candle-s PUBLIC cxx_std_17)
 
 option(RADIAL_LIGHT_FIX "Use RadialLight fix for errors with textures" OFF)
 
@@ -64,5 +74,7 @@ if (BUILD_DEMO)
 	set(DEMO_SRC demo.cpp)
 	add_executable(demo ${DEMO_SRC})
 	target_include_directories(demo PRIVATE include)
-	target_link_libraries(demo PRIVATE sfml-graphics Candle-s)
+	target_include_directories(demo PRIVATE ${SFML_INCLUDE_DIR})
+	target_link_libraries(demo PRIVATE SFML::Graphics Candle-s)
+
 endif()

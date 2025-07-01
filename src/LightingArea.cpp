@@ -13,25 +13,25 @@ namespace candle{
         sf::BlendMode::Equation::Add    );            // alpha eq
     
     void LightingArea::initializeRenderTexture(const sf::Vector2f& size){
-        m_renderTexture.create(size.x, size.y);
+        m_renderTexture.resize(sf::Vector2u(size));
         m_renderTexture.setSmooth(true);
         m_baseTextureQuad[0].position =
         m_areaQuad[0].position =
         m_areaQuad[0].texCoords = {0, 0};
         m_baseTextureQuad[1].position =
         m_areaQuad[1].position =
-        m_areaQuad[1].texCoords = {size.x, 0};
+        m_areaQuad[1].texCoords = {0, size.y};
         m_baseTextureQuad[2].position =
         m_areaQuad[2].position =
-        m_areaQuad[2].texCoords = {size.x, size.y};
+        m_areaQuad[2].texCoords = {size.x, 0};
         m_baseTextureQuad[3].position =
         m_areaQuad[3].position =
-        m_areaQuad[3].texCoords = {0, size.y};
+        m_areaQuad[3].texCoords = {size.x, size.y};
     }
     
     LightingArea::LightingArea(Mode mode, const sf::Vector2f& position, const sf::Vector2f& size)
-    : m_baseTextureQuad(sf::Quads, 4)
-    , m_areaQuad(sf::Quads, 4)
+    : m_baseTextureQuad(sf::PrimitiveType::TriangleStrip, 4)
+    , m_areaQuad(sf::PrimitiveType::TriangleStrip, 4)
     , m_color(sf::Color::White)
     {
         m_opacity = 1.f;
@@ -42,8 +42,8 @@ namespace candle{
     }
     
     LightingArea::LightingArea(Mode mode, const sf::Texture* t, sf::IntRect r)
-    : m_baseTextureQuad(sf::Quads, 4)
-    , m_areaQuad(sf::Quads, 4)
+    : m_baseTextureQuad(sf::PrimitiveType::TriangleStrip, 4)
+    , m_areaQuad(sf::PrimitiveType::TriangleStrip, 4)
     , m_color(sf::Color::White)
     {
         m_opacity = 1.f;
@@ -114,11 +114,10 @@ namespace candle{
     
     void LightingArea::setAreaTexture(const sf::Texture* texture, sf::IntRect rect){
         m_baseTexture = texture;
-        if(rect.width == 0 && rect.height == 0 && texture != nullptr){
-            rect.width = texture->getSize().x;
-            rect.height = texture->getSize().y;
+        if(rect.size.x == 0 && rect.size.y == 0 && texture != nullptr){
+            rect.size = sf::Vector2i(texture->getSize());
         }
-        initializeRenderTexture(sf::Vector2f(rect.width, rect.height));
+        initializeRenderTexture(sf::Vector2f(rect.size));
         setTextureRect(rect);
     }
     
@@ -127,10 +126,10 @@ namespace candle{
     }
     
     void LightingArea::setTextureRect(const sf::IntRect& rect){
-        m_baseTextureQuad[0].texCoords = sf::Vector2f(rect.left, rect.top);
-        m_baseTextureQuad[1].texCoords = sf::Vector2f(rect.left + rect.width, rect.top);
-        m_baseTextureQuad[2].texCoords = sf::Vector2f(rect.left + rect.width, rect.top + rect.height);
-        m_baseTextureQuad[3].texCoords = sf::Vector2f(rect.left, rect.top + rect.height);
+        m_baseTextureQuad[0].texCoords = sf::Vector2f(rect.position);
+        m_baseTextureQuad[1].texCoords = sf::Vector2f(rect.position.x, rect.position.y + rect.size.y);
+        m_baseTextureQuad[2].texCoords = sf::Vector2f(rect.position.x + rect.size.x, rect.position.y);
+        m_baseTextureQuad[3].texCoords = sf::Vector2f(rect.position.x + rect.size.x, rect.position.y + rect.size.y);
     }
     
     sf::IntRect LightingArea::getTextureRect() const{

@@ -26,10 +26,10 @@ namespace candle{
 
         l_lightTextureFade.reset(new sf::RenderTexture);
         l_lightTexturePlain.reset(new sf::RenderTexture);
-        l_lightTextureFade->create(BASE_RADIUS*2 + 2, BASE_RADIUS*2 + 2);
-        l_lightTexturePlain->create(BASE_RADIUS*2 + 2, BASE_RADIUS*2 + 2);
+        l_lightTextureFade->resize(sf::Vector2u(BASE_RADIUS * 2 + 2, BASE_RADIUS * 2 + 2));
+        l_lightTexturePlain->resize(sf::Vector2u(BASE_RADIUS * 2 + 2, BASE_RADIUS * 2 + 2));
 
-        sf::VertexArray lightShape(sf::TriangleFan, points+2);
+        sf::VertexArray lightShape(sf::PrimitiveType::TriangleFan, points+2);
         float step = sfu::PI*2.f/points;
         lightShape[0].position = {BASE_RADIUS + 1, BASE_RADIUS + 1};
         for(int i = 1; i < points+2; i++){
@@ -65,7 +65,7 @@ namespace candle{
             initializeTextures();
             l_texturesReady = true;
         }
-        m_polygon.setPrimitiveType(sf::TriangleFan);
+        m_polygon.setPrimitiveType(sf::PrimitiveType::TriangleFan);
         m_polygon.resize(6);
         m_polygon[0].position =
         m_polygon[0].texCoords = {BASE_RADIUS+1, BASE_RADIUS+1};
@@ -79,7 +79,7 @@ namespace candle{
         m_polygon[3].texCoords = {BASE_RADIUS*2 + 2, BASE_RADIUS*2 + 2};
         m_polygon[4].position =
         m_polygon[4].texCoords = {0.f, BASE_RADIUS*2 + 2};
-        Transformable::setOrigin(BASE_RADIUS, BASE_RADIUS);
+        Transformable::setOrigin({ BASE_RADIUS, BASE_RADIUS });
         setRange(1.0f);
         setBeamAngle(360.f);
         // castLight();
@@ -105,7 +105,7 @@ namespace candle{
 
     void RadialLight::draw(sf::RenderTarget& t, sf::RenderStates s) const{
         sf::Transform trm = Transformable::getTransform();
-        trm.scale(m_range/BASE_RADIUS, m_range/BASE_RADIUS, BASE_RADIUS, BASE_RADIUS);
+        trm.scale({ m_range / BASE_RADIUS, m_range / BASE_RADIUS }, { BASE_RADIUS, BASE_RADIUS });
         s.transform *= trm;
         s.texture = m_fade ? &l_lightTextureFade->getTexture() : &l_lightTexturePlain->getTexture();
         if(s.blendMode == sf::BlendAlpha){
@@ -131,27 +131,27 @@ namespace candle{
     }
 
     sf::FloatRect RadialLight::getLocalBounds() const{
-        return sf::FloatRect(0.0f, 0.0f, BASE_RADIUS*2, BASE_RADIUS*2);
+        return sf::FloatRect({ 0.0f, 0.0f }, { BASE_RADIUS * 2, BASE_RADIUS * 2 });
     }
 
     sf::FloatRect RadialLight::getGlobalBounds() const{
         float scaledRange = m_range / BASE_RADIUS;
         sf::Transform trm = Transformable::getTransform();
-        trm.scale(scaledRange, scaledRange, BASE_RADIUS, BASE_RADIUS);
+        trm.scale({ scaledRange, scaledRange }, { BASE_RADIUS, BASE_RADIUS });
         return trm.transformRect( getLocalBounds() );
     }
 
     void RadialLight::castLight(const EdgeVector::iterator& begin, const EdgeVector::iterator& end){
         float scaledRange = m_range / BASE_RADIUS;
         sf::Transform trm = Transformable::getTransform();
-        trm.scale(scaledRange, scaledRange, BASE_RADIUS, BASE_RADIUS);
+        trm.scale({ scaledRange, scaledRange }, { BASE_RADIUS, BASE_RADIUS });
         std::vector<sfu::Line> rays;
 
         rays.reserve(2 + std::distance(begin, end) * 2 * 3); // 2: beam angle, 4: corners, 2: pnts/sgmnt, 3 rays/pnt
 
         // Start casting
-        float bl1 = module360(getRotation() - m_beamAngle/2);
-        float bl2 = module360(getRotation() + m_beamAngle/2);
+        float bl1 = module360(getRotation().asDegrees() - m_beamAngle / 2);
+        float bl2 = module360(getRotation().asDegrees() + m_beamAngle / 2);
         bool beamAngleBigEnough = m_beamAngle < 0.1f;
         auto castPoint = Transformable::getPosition();
         float off = .001f;
@@ -173,7 +173,7 @@ namespace candle{
             auto& s = *it;
 
             //Only cast a ray if the line is in range
-            if( lightBounds.intersects( s.getGlobalBounds() ) ){
+            if( lightBounds.findIntersection( s.getGlobalBounds() ) ){
                 sfu::Line r1(castPoint, s.m_origin);
                 sfu::Line r2(castPoint, s.point(1.f));
                 float a1 = sfu::angle(r1.m_direction);
