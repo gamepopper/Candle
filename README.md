@@ -59,10 +59,10 @@ make docs # optional
 
 <img src="https://www.sfml-dev.org/download/goodies/sfml-icon.svg" height="50">
 
-- **SFML v2.5.1**
+- **SFML v3.0.0**
   - Graphics module and System module.
 
-_This library is meant to be used in SFML applications, so it's assumed that you are familiar with the process of compiling them. If you are not, [you can learn in the official website](https://www.sfml-dev.org/tutorials/2.5/)_ . 
+_This library is meant to be used in SFML applications, so it's assumed that you are familiar with the process of compiling them. If you are not, [you can learn in the official website](https://www.sfml-dev.org/tutorials/3.0/)_ . 
 
 - If you want to build the docs, Doxygen 1.9.1 is required.
 

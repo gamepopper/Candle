@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.5)
 
 project(Candle)
 
@@ -15,10 +15,6 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY lib)
 # set(SFML_ROOT "")
 if(SFML_ROOT STREQUAL "")
 	find_package(SFML 3.0 REQUIRED COMPONENTS Graphics)
-endif()
-
-if (SFML_GRAPHICS_FOUND)
-	message(STATUS "SFML Graphics Found")
 endif()
 
 # if the user wants to use static SFML libs
